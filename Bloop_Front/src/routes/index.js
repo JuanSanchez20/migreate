@@ -1,0 +1,1 @@
+export { getRedirectPathForRole } from './config/routeConfig'
