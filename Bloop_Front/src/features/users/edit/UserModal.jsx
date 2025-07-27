@@ -24,36 +24,45 @@ const ModalContent = ({
     onAddSubject,
     onRemoveSubject,
     loading
-}) => (
-    <div className="grid lg:grid-cols-2" style={{ height: 'calc(90vh - 200px)' }}>
-        {/* Columna izquierda: Información/Edición del usuario */}
-        <div className="p-5 border-r border-slate-700 overflow-y-auto">
-            {editMode ? (
-                <UserEditForm
-                    editedUser={editedUser}
-                    onUserChange={onUserChange}
-                    showEditPassword={showPassword}
-                    onTogglePassword={onTogglePassword}
-                />
-            ) : (
-                <UserInfoSection user={user} />
+}) => {
+    // Verificar si el usuario puede gestionar materias
+    const canManageSubjects = user?.rol_name?.toLowerCase() !== 'admin';
+    
+    return (
+        <div className={`grid ${canManageSubjects ? 'lg:grid-cols-2' : 'lg:grid-cols-1'}`} 
+            style={{ height: 'calc(90vh - 200px)' }}>
+            
+            {/* Columna izquierda: Información/Edición del usuario */}
+            <div className={`p-5 overflow-y-auto ${canManageSubjects ? 'border-r border-slate-700' : ''}`}>
+                {editMode ? (
+                    <UserEditForm
+                        editedUser={editedUser}
+                        onUserChange={onUserChange}
+                        showEditPassword={showPassword}
+                        onTogglePassword={onTogglePassword}
+                    />
+                ) : (
+                    <UserInfoSection user={user} />
+                )}
+            </div>
+
+            {/* Columna derecha: Gestión de materias (Solo para Tutores y Estudiantes) */}
+            {canManageSubjects && (
+                <div className="p-6 overflow-y-auto">
+                    <SubjectManagement
+                        assignedSubjects={assignedSubjects}
+                        subjectsToShow={subjectsToShow}
+                        selectedSubjectToAdd={selectedSubjectToAdd}
+                        onSubjectSelect={onSubjectSelect}
+                        onAddSubject={onAddSubject}
+                        onRemoveSubject={onRemoveSubject}
+                        loading={loading}
+                    />
+                </div>
             )}
         </div>
-
-        {/* Columna derecha: Gestión de materias */}
-        <div className="p-6 overflow-y-auto">
-            <SubjectManagement
-                assignedSubjects={assignedSubjects}
-                subjectsToShow={subjectsToShow}
-                selectedSubjectToAdd={selectedSubjectToAdd}
-                onSubjectSelect={onSubjectSelect}
-                onAddSubject={onAddSubject}
-                onRemoveSubject={onRemoveSubject}
-                loading={loading}
-            />
-        </div>
-    </div>
-);
+    );
+};
 
 // Componente principal del modal de usuario
 // Permite ver y editar información del usuario, así como gestionar sus materias
@@ -109,11 +118,12 @@ const UserModal = ({
 
         // Estados derivados
         hasChanges
-    } = useUserModalModule(user, onUserUpdate, showSuccess, showError);
+    } = useUserModalModule(user, onUserUpdate, showSuccess, showError, hideNotification);
 
     // Hook para cerrar modal al hacer clic fuera
     const modalRef = useClickOutside(
         () => {
+            hideNotification();
             if (hasChanges) {
                 const confirm = window.confirm('Tienes cambios sin guardar. ¿Estás seguro de que quieres cerrar?');
                 if (confirm) {
@@ -134,29 +144,9 @@ const UserModal = ({
         }
     }, [isEditing, isOpen]);
 
-    // Manejar tecla Escape para cerrar modal
-    useEffect(() => {
-        const handleEscapeKey = (event) => {
-            if (event.key === 'Escape' && isOpen) {
-                if (hasChanges) {
-                    const confirm = window.confirm('Tienes cambios sin guardar. ¿Estás seguro de que quieres cerrar?');
-                    if (confirm) {
-                        closeModal();
-                    }
-                } else {
-                    closeModal();
-                }
-            }
-        };
-
-        if (isOpen) {
-            document.addEventListener('keydown', handleEscapeKey);
-            return () => document.removeEventListener('keydown', handleEscapeKey);
-        }
-    }, [isOpen, hasChanges, closeModal]);
-
     // Manejar el cierre del modal
     const handleModalClose = () => {
+        hideNotification();
         closeModal();
         if (onClose) {
             onClose();

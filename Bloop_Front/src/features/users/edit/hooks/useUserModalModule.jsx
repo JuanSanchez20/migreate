@@ -5,10 +5,7 @@ import useUserEdit from './useUserEdit';
 import useSubjectManagement from './useSubjectManagement';
 import { NOTIFICATION_MESSAGES } from '../helpers/modalConstants';
 
-// Hook orquestador principal del módulo de modal de usuario
-// Unifica todos los hooks específicos y maneja la coordinación entre ellos
-const useUserModalModule = (user, onUserUpdate, showSuccess, showError) => {
-    // Hook de estado del modal
+const useUserModalModule = (user, onUserUpdate, showSuccess, showError, hideNotification) => {
     const {
         isOpen,
         editMode,
@@ -26,7 +23,6 @@ const useUserModalModule = (user, onUserUpdate, showSuccess, showError) => {
         closeWithValidation
     } = useModalState();
 
-    // Hook de edición de usuario
     const {
         editedUser,
         hasUnsavedChanges,
@@ -42,7 +38,8 @@ const useUserModalModule = (user, onUserUpdate, showSuccess, showError) => {
         clearError: clearEditError
     } = useUserEdit(user);
 
-    // Hook de gestión de materias
+    const canManageSubjects = user?.rol_name?.toLowerCase() !== 'admin';
+
     const {
         assignedSubjects,
         selectedSubjectToAdd,
@@ -56,40 +53,34 @@ const useUserModalModule = (user, onUserUpdate, showSuccess, showError) => {
         resetSubjectChanges,
         getSubjectStats,
         subjectsToShow,
-        setError: setSubjectError,
         clearError: clearSubjectError
-    } = useSubjectManagement(user);
+    } = useSubjectManagement(
+        canManageSubjects ? user : null,
+        (message) => showSuccess(message),
+        (message) => showError(message, 3000) // 3 segundos para errores como solicitaste
+    );
 
-    // Loading global del módulo
-    const isLoading = modalLoading || subjectLoading;
+    const isLoading = modalLoading || (canManageSubjects ? subjectLoading : false);
+    const moduleError = editError || (canManageSubjects ? subjectError : null);
 
-    // Error global del módulo
-    const moduleError = editError || subjectError;
-
-    // Maneja el guardado del usuario
     const handleSaveUser = useCallback(async () => {
         try {
             setModalLoading(true);
             clearEditError();
 
-            // Validar datos antes de guardar
             const validation = validateCurrentUser();
             if (!validation.isValid) {
-                showError(validation.errors.join('. '));
+                showError(validation.errors.join('. '), 3000);
                 return;
             }
 
-            // Preparar datos para el servicio
             const payload = prepareDataForService();
-
-            // Llamar al servicio de actualización
             const response = await updateUserService(payload);
 
             if (response.ok) {
                 disableEditMode();
                 showSuccess(response.message || NOTIFICATION_MESSAGES.SUCCESS.USER_UPDATED);
 
-                // Notificar actualización al componente padre
                 if (onUserUpdate) {
                     onUserUpdate();
                 }
@@ -99,7 +90,7 @@ const useUserModalModule = (user, onUserUpdate, showSuccess, showError) => {
 
         } catch (err) {
             console.error('Error al guardar cambios:', err);
-            showError(err.message || NOTIFICATION_MESSAGES.ERROR.USER_UPDATE_FAILED);
+            showError(err.message || NOTIFICATION_MESSAGES.ERROR.USER_UPDATE_FAILED, 3000);
         } finally {
             setModalLoading(false);
         }
@@ -114,38 +105,37 @@ const useUserModalModule = (user, onUserUpdate, showSuccess, showError) => {
         onUserUpdate
     ]);
 
-    // Maneja la cancelación de edición
     const handleCancelEdit = useCallback(() => {
         resetChanges();
         disableEditMode();
         clearEditError();
     }, [resetChanges, disableEditMode, clearEditError]);
 
-    // Maneja el cierre del modal con validación de cambios
     const handleCloseModal = useCallback(() => {
-        // Si hay cambios en materias, refrescar datos sin recargar página
-        if (hasSubjectChanges) {
+        hideNotification?.();
+        if (canManageSubjects && hasSubjectChanges) {
             showSuccess('Cambios aplicados correctamente');
 
-            // Refrescar los datos de la lista desde el backend
             if (onUserUpdate) {
-                onUserUpdate(); // Esto refresca la lista de usuarios
+                onUserUpdate();
             }
 
-            // Cerrar modal normalmente
             closeModal();
             return;
         }
 
-        // Si hay cambios sin guardar en usuario, confirmar
         const canClose = closeWithValidation(hasUnsavedChanges);
         if (canClose) {
             closeModal();
             resetModalState();
-            resetSubjectChanges();
-            clearSelection();
+            if (canManageSubjects) {
+                resetSubjectChanges();
+                clearSelection();
+            }
         }
     }, [
+        hideNotification,
+        canManageSubjects,
         hasSubjectChanges,
         hasUnsavedChanges,
         showSuccess,
@@ -157,7 +147,6 @@ const useUserModalModule = (user, onUserUpdate, showSuccess, showError) => {
         clearSelection
     ]);
 
-    // Maneja el toggle entre modo vista y edición
     const handleToggleEdit = useCallback(() => {
         if (editMode) {
             handleCancelEdit();
@@ -166,54 +155,52 @@ const useUserModalModule = (user, onUserUpdate, showSuccess, showError) => {
         }
     }, [editMode, handleCancelEdit, enableEditMode]);
 
-    // Maneja la adición de materias
     const handleAddSubject = useCallback(async () => {
+        if (!canManageSubjects) return false;
+        
         const success = await assignSubjectFunction();
         if (success) {
             showSuccess(NOTIFICATION_MESSAGES.SUCCESS.SUBJECT_ASSIGNED);
         }
-    }, [assignSubjectFunction, showSuccess]);
+        return success;
+    }, [canManageSubjects, assignSubjectFunction, showSuccess]);
 
-    // Maneja la eliminación de materias
     const handleRemoveSubject = useCallback(async (subject) => {
+        if (!canManageSubjects) return false;
+        
         const success = await unassignSubjectFunction(subject);
         if (success) {
             showSuccess(NOTIFICATION_MESSAGES.SUCCESS.SUBJECT_UNASSIGNED);
         }
-    }, [unassignSubjectFunction, showSuccess]);
+        return success;
+    }, [canManageSubjects, unassignSubjectFunction, showSuccess]);
 
-    // Limpia todos los errores del módulo
     const clearAllErrors = useCallback(() => {
         clearEditError();
-        clearSubjectError();
-    }, [clearEditError, clearSubjectError]);
+        if (canManageSubjects) {
+            clearSubjectError();
+        }
+    }, [clearEditError, clearSubjectError, canManageSubjects]);
 
-    // Obtiene el estado completo del módulo
     const getModuleState = useCallback(() => {
         const editState = getEditState();
-        const subjectStats = getSubjectStats();
+        const subjectStats = canManageSubjects ? getSubjectStats() : { hasChanges: false };
 
         return {
-            // Estados del modal
             isOpen,
             editMode,
             showPassword,
             isLoading,
-
-            // Estados de edición
             hasUnsavedChanges,
             canSave: canSave(),
             ...editState,
-
-            // Estados de materias
-            hasSubjectChanges,
-            assignedSubjectsCount: assignedSubjects.length,
-            availableSubjectsCount: subjectsToShow.length,
+            hasSubjectChanges: canManageSubjects ? hasSubjectChanges : false,
+            assignedSubjectsCount: canManageSubjects ? assignedSubjects.length : 0,
+            availableSubjectsCount: canManageSubjects ? subjectsToShow.length : 0,
             ...subjectStats,
-
-            // Estados de error
             hasErrors: Boolean(moduleError),
-            error: moduleError
+            error: moduleError,
+            canManageSubjects
         };
     }, [
         isOpen,
@@ -223,72 +210,59 @@ const useUserModalModule = (user, onUserUpdate, showSuccess, showError) => {
         hasUnsavedChanges,
         canSave,
         getEditState,
+        canManageSubjects,
         hasSubjectChanges,
-        assignedSubjects.length,
-        subjectsToShow.length,
+        assignedSubjects?.length,
+        subjectsToShow?.length,
         getSubjectStats,
         moduleError
     ]);
 
-    // Resetea completamente el módulo
     const resetModule = useCallback(() => {
         resetModalState();
         resetChanges();
-        resetSubjectChanges();
-        clearSelection();
+        if (canManageSubjects) {
+            resetSubjectChanges();
+            clearSelection();
+        }
         clearAllErrors();
-    }, [resetModalState, resetChanges, resetSubjectChanges, clearSelection, clearAllErrors]);
+    }, [resetModalState, resetChanges, resetSubjectChanges, clearSelection, clearAllErrors, canManageSubjects]);
 
-    // Efecto para limpiar errores cuando se cambia de usuario
     useEffect(() => {
         clearAllErrors();
     }, [user?.u_id, clearAllErrors]);
 
     return {
-        // Estados principales
         isOpen,
         editMode,
         showPassword,
         loading: isLoading,
         error: moduleError,
-
-        // Datos del usuario
         editedUser,
         hasUnsavedChanges,
-
-        // Datos de materias
-        assignedSubjects,
-        subjectsToShow,
-        selectedSubjectToAdd,
-        hasSubjectChanges,
-
-        // Funciones del modal
+        assignedSubjects: canManageSubjects ? assignedSubjects : [],
+        subjectsToShow: canManageSubjects ? subjectsToShow : [],
+        selectedSubjectToAdd: canManageSubjects ? selectedSubjectToAdd : '',
+        hasSubjectChanges: canManageSubjects ? hasSubjectChanges : false,
+        canManageSubjects,
         openModal,
         closeModal: handleCloseModal,
         openInEditMode,
         toggleEditMode: handleToggleEdit,
         togglePasswordVisibility,
-
-        // Funciones de edición
         updateUserField,
         updateUserFields,
         saveUser: handleSaveUser,
         cancelEdit: handleCancelEdit,
         canSave,
-
-        // Funciones de materias
-        setSelectedSubjectToAdd,
+        setSelectedSubjectToAdd: canManageSubjects ? setSelectedSubjectToAdd : () => {},
         addSubject: handleAddSubject,
         removeSubject: handleRemoveSubject,
-
-        // Funciones de utilidad
         getModuleState,
         resetModule,
         clearAllErrors,
-
-        // Estados derivados
         canClose: !hasUnsavedChanges || !editMode,
-        hasChanges: hasUnsavedChanges || hasSubjectChanges,
+        hasChanges: hasUnsavedChanges || (canManageSubjects ? hasSubjectChanges : false),
         isEditing: editMode && isOpen,
         hasErrors: Boolean(moduleError)
     };

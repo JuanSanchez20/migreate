@@ -3,7 +3,6 @@ import { PencilIcon } from '@heroicons/react/24/outline';
 import { TextField } from '@/components';
 import { ROLE_OPTIONS, STATE_OPTIONS, SEMESTER_OPTIONS } from '../helpers/modalConstants';
 
-// Sección reutilizable para mostrar información agrupada
 const InfoSection = ({ title, icon: Icon, children }) => (
     <div className="bg-slate-700/30 rounded-lg p-4 border border-slate-600/30">
         <h4 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
@@ -14,7 +13,6 @@ const InfoSection = ({ title, icon: Icon, children }) => (
     </div>
 );
 
-// Campo de entrada reutilizable para formularios
 const EditableField = ({
     label,
     value,
@@ -74,7 +72,6 @@ const EditableField = ({
     );
 };
 
-// Componente de formulario para editar los datos del usuario
 const UserEditForm = ({
     editedUser,
     onUserChange,
@@ -91,10 +88,11 @@ const UserEditForm = ({
         );
     }
 
+    const isStudent = editedUser.rol?.toLowerCase() === 'estudiante';
+
     return (
         <InfoSection title="Editar Usuario" icon={PencilIcon}>
             <div className="space-y-4">
-                {/* Información básica */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <EditableField
                         label="Nombre completo"
@@ -114,7 +112,6 @@ const UserEditForm = ({
                     />
                 </div>
 
-                {/* Campo de contraseña con toggle */}
                 <EditableField
                     label="Contraseña"
                     fieldId="edit-password"
@@ -127,7 +124,6 @@ const UserEditForm = ({
                     showPassword={showEditPassword}
                 />
 
-                {/* Rol y estado en grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <EditableField
                         label="Rol"
@@ -150,8 +146,7 @@ const UserEditForm = ({
                     />
                 </div>
 
-                {/* Semestre solo para estudiantes */}
-                {editedUser.rol?.toLowerCase() === 'estudiante' && (
+                {isStudent && (
                     <EditableField
                         label="Semestre"
                         fieldId="edit-semester"

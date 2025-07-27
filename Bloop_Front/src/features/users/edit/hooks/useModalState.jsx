@@ -5,13 +5,13 @@ import { useLoadingState } from '@/hooks';
 const useModalState = (initialEditMode = false) => {
     // Estado para controlar si el modal está abierto
     const [isOpen, setIsOpen] = useState(false);
-    
+
     // Estado para controlar el modo de edición
     const [editMode, setEditMode] = useState(initialEditMode);
-    
+
     // Estado para mostrar/ocultar contraseña
     const [showPassword, setShowPassword] = useState(false);
-    
+
     // Hook de loading para operaciones del modal
     const { loading, startLoading, stopLoading } = useLoadingState(false);
 
@@ -82,12 +82,12 @@ const useModalState = (initialEditMode = false) => {
         if (loading) {
             return false;
         }
-        
+
         // Si hay cambios sin guardar, requerir confirmación
         if (hasUnsavedChanges) {
             return window.confirm('Tienes cambios sin guardar. ¿Estás seguro de que quieres cerrar?');
         }
-        
+
         return true;
     }, [loading]);
 

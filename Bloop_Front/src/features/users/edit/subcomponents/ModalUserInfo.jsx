@@ -36,6 +36,11 @@ const UserInfoSection = ({ user }) => {
     }
 
     const roleColorClasses = getRoleColor(user.rol_name);
+    
+    // Determinar si debe mostrar semestre
+    const shouldShowSemester = user?.rol_name?.toLowerCase() === 'estudiante' && 
+                              user.u_semester && 
+                              user.u_semester > 0;
 
     return (
         <div className="space-y-4">
@@ -48,7 +53,9 @@ const UserInfoSection = ({ user }) => {
                     <div>
                         <span className="text-slate-400">Email:</span> {user.u_email}
                     </div>
-                    {user.u_semester && (
+                    
+                    {/* Solo mostrar semestre si es relevante */}
+                    {shouldShowSemester && (
                         <div>
                             <span className="text-slate-400">Semestre:</span> {user.u_semester}°
                         </div>
