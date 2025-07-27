@@ -310,6 +310,7 @@ const ProposalActions = ({
                             </span>
                         </Button>
                     );
+                    
                 })}
             </div>
 
