@@ -6,6 +6,7 @@ import { SUBJECT_ASSIGNMENT_STATUS } from '../helpers/modalConstants';
 
 const useSubjectManagement = (user, onSuccess, onError) => {
     const [assignedSubjects, setAssignedSubjects] = useState([]);
+    const [hasUnassignmentChanges, setHasUnassignmentChanges] = useState(false);
 
     const {
         availableSubjects,
@@ -103,6 +104,7 @@ const useSubjectManagement = (user, onSuccess, onError) => {
             setAssignedSubjects(prev => 
                 prev.filter(s => s.id !== result.removedSubjectId)
             );
+            setHasUnassignmentChanges(true);
         }
         return result?.success || false;
     }, [originalUnassignFunction]);
@@ -130,6 +132,7 @@ const useSubjectManagement = (user, onSuccess, onError) => {
 
     const resetSubjectChanges = useCallback(() => {
         resetAssignmentChanges();
+        setHasUnassignmentChanges(false);
     }, [resetAssignmentChanges]);
 
     useEffect(() => {
@@ -140,7 +143,7 @@ const useSubjectManagement = (user, onSuccess, onError) => {
         assignedSubjects,
         availableSubjects,
         selectedSubjectToAdd,
-        hasSubjectChanges: hasAssignmentChanges,
+        hasSubjectChanges: hasAssignmentChanges || hasUnassignmentChanges,
         loading,
         error,
         assignSubjectFunction,

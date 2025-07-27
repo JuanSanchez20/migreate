@@ -124,14 +124,7 @@ const UserModal = ({
     const modalRef = useClickOutside(
         () => {
             hideNotification();
-            if (hasChanges) {
-                const confirm = window.confirm('Tienes cambios sin guardar. ¿Estás seguro de que quieres cerrar?');
-                if (confirm) {
-                    closeModal();
-                }
-            } else {
-                closeModal();
-            }
+            closeModal();
         },
         isOpen && !loading, // Solo activo si está abierto y no está cargando
         ['notification-banner'] // Ignorar clics en notificaciones

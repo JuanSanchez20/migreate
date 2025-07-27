@@ -113,8 +113,8 @@ const useUserModalModule = (user, onUserUpdate, showSuccess, showError, hideNoti
 
     const handleCloseModal = useCallback(() => {
         hideNotification?.();
+
         if (canManageSubjects && hasSubjectChanges) {
-            showSuccess('Cambios aplicados correctamente');
 
             if (onUserUpdate) {
                 onUserUpdate();
@@ -172,6 +172,12 @@ const useUserModalModule = (user, onUserUpdate, showSuccess, showError, hideNoti
         if (success) {
             showSuccess(NOTIFICATION_MESSAGES.SUCCESS.SUBJECT_UNASSIGNED);
         }
+
+        // Refrescar datos del contexto para mantener sincronización
+        if (onUserUpdate) {
+            onUserUpdate();
+        }
+
         return success;
     }, [canManageSubjects, unassignSubjectFunction, showSuccess]);
 

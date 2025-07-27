@@ -83,11 +83,6 @@ const useModalState = (initialEditMode = false) => {
             return false;
         }
 
-        // Si hay cambios sin guardar, requerir confirmación
-        if (hasUnsavedChanges) {
-            return window.confirm('Tienes cambios sin guardar. ¿Estás seguro de que quieres cerrar?');
-        }
-
         return true;
     }, [loading]);
 
