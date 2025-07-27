@@ -39,8 +39,6 @@ const useSubjectList = () => {
                 throw new Error('Formato de datos inválido recibido del servidor');
             }
 
-            console.log('🔍 Datos raw del backend:', subjectsData[0]); // ✅ DEBUGGING
-
             // ✅ CORREGIDO: Transformación usando los campos que realmente devuelve el backend
             const transformedSubjects = subjectsData.map(subject => ({
                 // Campos originales
@@ -53,13 +51,10 @@ const useSubjectList = () => {
                 label: subject.nombre     // Para compatibilidad con selects
             }));
 
-            console.log('🔍 Materias transformadas:', transformedSubjects); // ✅ DEBUGGING
-
             setSubjects(transformedSubjects);
             return transformedSubjects;
 
         } catch (err) {
-            console.error('Error en fetchSubjects:', err);
             setError(err.message || 'Error al cargar la lista de materias');
             setSubjects([]);
             throw err;

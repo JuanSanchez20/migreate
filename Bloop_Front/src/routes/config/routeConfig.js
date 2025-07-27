@@ -3,6 +3,7 @@ import {
     LoginPage,
     HomeGlobal,
     ProposalListPage,
+    CreateProposalPage,
     UserListPage,
     CreateUserPage,
     // UserProfile
@@ -51,6 +52,13 @@ export const routeConfig = [
         path: '/proposals',
         element: ProposalListPage,
         allowedRoles: [1, 2, 3],
+        title: 'Listado de Propuestas',
+        description: 'Gestión de propuestas del sistema'
+    },
+    {
+        path: '/proposals/create',
+        element: CreateProposalPage,
+        allowedRoles: [1, 2],
         title: 'Listado de Propuestas',
         description: 'Gestión de propuestas del sistema'
     },

@@ -15,23 +15,11 @@ const useProposalsFilters = () => {
 
     // Actualiza la materia seleccionada
     const updateSelectedSubject = useCallback((subject) => {
-        console.log('📝 updateSelectedSubject recibido:', {
-            subject,
-            type: typeof subject,
-            isTodasValue: subject === 'todas',
-            isEmpty: !subject
-        });
 
         if (subject === 'todas' || !subject) {
-            console.log('✅ Estableciendo selectedSubject a null');
             setSelectedSubject(null);
         } else {
             const numericValue = parseInt(subject);
-            console.log('🔢 Convirtiendo a número:', {
-                original: subject,
-                converted: numericValue,
-                isNaN: isNaN(numericValue)
-            });
             setSelectedSubject(isNaN(numericValue) ? null : numericValue);
         }
     }, []);
@@ -66,28 +54,11 @@ const useProposalsFilters = () => {
 
         // Filtro por materia usando ID
         if (selectedSubject !== null) {
-            console.log('🔍 Filtrando por materia:', {
-                selectedSubject,
-                type: typeof selectedSubject,
-                sampleProposal: filtered[0] ? {
-                    pp_subject: filtered[0].pp_subject,
-                    materia_nombre: filtered[0].materia_nombre
-                } : 'No hay propuestas'
-            });
-            
             filtered = filtered.filter(proposal => {
                 const match = proposal.pp_subject === selectedSubject;
-                console.log(`Propuesta ${proposal.pp_name}: pp_subject=${proposal.pp_subject}, selectedSubject=${selectedSubject}, match=${match}`);
                 return match;
             });
         }
-
-        console.log('📊 Resultado del filtrado:', {
-            originalCount: proposals.length,
-            filteredCount: filtered.length,
-            searchTerm,
-            selectedSubject
-        });
 
         return filtered;
     }, [searchTerm, selectedSubject]);

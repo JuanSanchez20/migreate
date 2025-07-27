@@ -18,15 +18,6 @@ const ProposalsFiltersSection = ({
     loading = false
 }) => {
 
-    console.log('🎯 Estado actual del componente:', {
-        selectedSubject,
-        type: typeof selectedSubject,
-        availableSubjectsCount: availableSubjects?.length || 0,
-        firstSubject: availableSubjects?.[0]
-    });
-
-    console.log('🔍 availableSubjects completo:', availableSubjects);
-
     return (
         <div className="bg-gray-800 rounded-lg p-6 mb-6 shadow-lg border border-gray-700">
             <div className="flex flex-col sm:flex-row gap-4">
@@ -75,14 +66,12 @@ const ProposalsFiltersSection = ({
                             value={selectedSubject || 'todas'} // ✅ Simplificado
                             onChange={(e) => {
                                 const value = e.target.value;
-                                console.log('🔍 Select onChange:', { value, type: typeof value });
 
                                 if (value === 'todas') {
                                     onSubjectChange?.(null);
                                 } else {
                                     // ✅ Simplificado: convertir directamente a número
                                     const numericId = parseInt(value);
-                                    console.log('🔢 ID convertido:', { original: value, numeric: numericId });
                                     onSubjectChange?.(numericId);
                                 }
                             }}

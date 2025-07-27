@@ -6,7 +6,11 @@ export { default as LoginForm } from './auth/LoginForm';
 export { default as ProposalList } from './proposals/list/ProposalList';
 
 export { default as useProposalModule } from './proposals/list/hooks/useProposalModule';
-export { default as useSubjectList } from './proposals/list/hooks/useSubjectList';
+export { default as ProposalModal } from './proposals/edit/ProposalModal';
+
+// Crear propuesta
+export { default as CreateProposalForm } from './proposals/create/CreateProposalForm';
+export { default as useCreateProposalModule } from './proposals/create/hooks/useCreateProposalModule';
 
 // ====== Usuarios ===== //
 // Listado de usuarios

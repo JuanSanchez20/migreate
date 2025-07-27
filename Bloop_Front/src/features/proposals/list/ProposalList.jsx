@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '@/contexts';
 import { isStudentRole } from './helpers/roleMapper';
+import { formatDate } from './helpers/formatData';
 import ProposalsFiltersSection from './subcomponents/ProposalsStatsFilter';
 import ProposalsStatsSection from './subcomponents/ProposalStatsSection';
 import ProposalsListSection from './subcomponents/ProposalListSection';
@@ -43,7 +44,7 @@ const ProposalsList = ({
                 projectType={proposal.tipo_proyecto}
                 description={proposal.pp_description}
                 priority={proposal.pp_difficulty_level}
-                dueDate={proposal.pp_date_limit}
+                dueDate={formatDate(proposal.pp_date_limit)}
                 status={proposal.pp_approval_status}
                 subject={proposal.materia_nombre}
                 onCardClick={onCardClick}

@@ -6,6 +6,7 @@ export { default as Navbar } from './layouts/navbar/Navbar';
 export { default as Sidebar } from './layouts/sidebar/Sidebar';
 
 export { default as ProposalListPage } from './proposal/ProposalListPage';
+export { default as CreateProposalPage } from './proposal/CreateProposalPage';
 
 export {default as UserListPage} from './admin/ListUserPage';
 export {default as CreateUserPage} from './admin/CreateUserPage';

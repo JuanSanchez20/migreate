@@ -4,7 +4,16 @@
 export const formatDate = (dateString) => {
     if (!dateString) return 'No establecido';
     
-    const date = new Date(dateString);
+    // Si la fecha viene en formato ISO con hora, extraer solo la fecha
+    let dateToFormat = dateString;
+    
+    // Si viene con hora UTC (termina en Z), extraer solo la parte de fecha
+    if (typeof dateString === 'string' && dateString.includes('T')) {
+        dateToFormat = dateString.split('T')[0]; // "2025-08-15T00:00:00.000Z" → "2025-08-15"
+    }
+    
+    const date = new Date(dateToFormat + 'T12:00:00'); // Agregar hora del mediodía para evitar problemas de zona horaria
+    
     if (isNaN(date.getTime()) || date.getFullYear() < 1971) {
         return 'No establecido';
     }

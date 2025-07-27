@@ -6,13 +6,14 @@ export const listProposals = async ({
     userRole,
     approvalStatus = null,
     subjectFilter = null,
-    section = 'general'
+    section = 'general',
+    proposalId = null
 }) => {
     try {
         // Estructura que espera el backend
         const payload = {
-            id: userId,      // ← Cambiar userId por id
-            role: userRole   // ← Cambiar userRole por role
+            id: userId,
+            role: userRole
         };
 
         // Construir query params
@@ -26,6 +27,11 @@ export const listProposals = async ({
 
         // Determinar endpoint
         let endpoint = '/list/proposals';
+
+        if ((section === 'objetive' || section === 'requeriments') && proposalId) {
+            payload.proposalId = proposalId;
+        }
+
         if (section === 'objetive') {
             endpoint = '/list/proposals/objetive';
         } else if (section === 'requeriments') {
@@ -33,7 +39,7 @@ export const listProposals = async ({
         }
 
         // Agregar query params si existen
-        const fullEndpoint = queryParams.toString() 
+        const fullEndpoint = queryParams.toString()
             ? `${endpoint}?${queryParams.toString()}`
             : endpoint;
 

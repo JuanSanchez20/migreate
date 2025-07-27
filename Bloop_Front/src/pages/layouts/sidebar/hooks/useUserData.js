@@ -1,4 +1,5 @@
 import { useAuth } from '@/contexts';
+import { getUserInitials } from '../helpers/userInitials';
 
 // Hook para la obtención de datos del usuario ingresado
 const useUserData = () => {
@@ -21,7 +22,7 @@ const useUserData = () => {
         roleLabel: roleMapping[userRole] || 'Desconocido',
 
         // Iniciales para el ávatar
-        initials: user?.name ? user.name.slice(0, 2).toUpperCase() : 'US'
+        initials: getUserInitials(user?.name)
     };
 };
 
