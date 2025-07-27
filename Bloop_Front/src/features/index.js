@@ -24,3 +24,8 @@ export { default as AssignSubjectsForm } from './users/create/AssignSubjectsForm
 export { default as UserPreviewCard } from './users/create/UserPreviewCard';
 
 export { default as useCreateUserModule } from './users/create/hooks/useCreateUserModule';
+
+// ====== Materias ===== //
+// Listado de materias
+export { default as SubjectList } from './subjects/list/SubjectList';
+export { default as useSubjectModule } from './subjects/list/hooks/useSubjectModule';

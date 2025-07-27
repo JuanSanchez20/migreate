@@ -32,7 +32,7 @@ const SubjectAssignmentForm = ({
                 <option value="">Seleccionar materia...</option>
                 {subjectsToShow.map(subject => (
                     <option key={subject.id} value={subject.id}>
-                        {subject.nombre} - Sem. {subject.semestre}
+                        {subject.nombre} - Sem. {subject.semestre} - Jor. {subject.modalidad}
                     </option>
                 ))}
             </select>

@@ -10,3 +10,5 @@ export { default as CreateProposalPage } from './proposal/CreateProposalPage';
 
 export {default as UserListPage} from './admin/ListUserPage';
 export {default as CreateUserPage} from './admin/CreateUserPage';
+
+export { default as SubjectListPage } from './subject/SubjectListPage'

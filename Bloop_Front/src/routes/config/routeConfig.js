@@ -6,6 +6,7 @@ import {
     CreateProposalPage,
     UserListPage,
     CreateUserPage,
+    SubjectListPage,
     // UserProfile
 } from '@/pages';
 
@@ -80,6 +81,15 @@ export const routeConfig = [
         title: 'Creación de Usuarios',
         description: 'Gestión de usuarios del sistema'
     },
+
+    // Listado de materias
+    {
+        path: '/courses',
+        element: SubjectListPage,
+        allowedRoles: [1, 2, 3],
+        title: 'Listado de materias',
+        description: 'Gestión de materias del sistema'
+    }
 
     // {
     //     path: '/profile',
