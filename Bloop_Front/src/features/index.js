@@ -28,4 +28,6 @@ export { default as useCreateUserModule } from './users/create/hooks/useCreateUs
 // ====== Materias ===== //
 // Listado de materias
 export { default as SubjectList } from './subjects/list/SubjectList';
+export { default as SubjectModal } from './subjects/edit/SubjectModal';
+
 export { default as useSubjectModule } from './subjects/list/hooks/useSubjectModule';
