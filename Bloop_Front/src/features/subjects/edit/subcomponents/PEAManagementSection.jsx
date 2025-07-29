@@ -30,14 +30,14 @@ const PEAManagementSection = ({ peaList, peaCreate, getPEASection, availableActi
             return null;
 
         case 'display':
-            return <PEADisplaySection 
-                peaData={peaSection.data} 
+            return <PEADisplaySection
+                peaData={peaSection.data}
                 viewLevel={peaSection.viewLevel}
                 refreshPEA={peaList.refreshPEA}
             />;
 
         case 'create':
-            return <PEACreateSection 
+            return <PEACreateSection
                 peaCreate={peaCreate}
                 canCreate={peaSection.canCreate}
             />;
@@ -54,26 +54,8 @@ const PEAManagementSection = ({ peaList, peaCreate, getPEASection, availableActi
 // Sección para mostrar PEA existente
 const PEADisplaySection = ({ peaData, viewLevel, refreshPEA }) => {
     return (
-        <InfoSection title="Plan de Enseñanza-Aprendizaje" icon={DocumentTextIcon}>
+        <InfoSection title="Plan de Aprendizaje" icon={DocumentTextIcon}>
             <div className="space-y-4">
-                {/* Información básica del PEA */}
-                <div className="grid grid-cols-2 gap-4">
-                    <InfoField label="ID del PEA" value={`#${peaData.id}`} />
-                    <InfoField label="Fecha de Creación" icon={CalendarIcon} value={
-                        peaData.dateCreated ? 
-                        new Date(peaData.dateCreated).toLocaleDateString() : 
-                        'No disponible'
-                    } />
-                </div>
-
-                {/* Estadísticas */}
-                {peaData.totalConcepts && (
-                    <div className="grid grid-cols-2 gap-4">
-                        <InfoField label="Total Conceptos" icon={HashtagIcon} value={peaData.totalConcepts} />
-                        <InfoField label="Unidades" icon={BookOpenIcon} value={peaData.totalUnits || 0} />
-                    </div>
-                )}
-
                 {/* Descripción */}
                 <div>
                     <label className="block text-sm font-medium text-slate-300 mb-2">Descripción:</label>
@@ -189,12 +171,12 @@ const PEACreateSection = ({ peaCreate, canCreate }) => {
                             No hay PEA registrado
                         </h3>
                         <p className="text-slate-400 mb-6">
-                            {canCreate ? 
+                            {canCreate ?
                                 'Sube un archivo PDF para crear el PEA de esta materia' :
                                 'No tienes permisos para crear PEA'
                             }
                         </p>
-                        
+
                         {/* Estado de Flask */}
                         <div className="mb-4">
                             {flaskStatus.isChecking ? (
@@ -223,7 +205,7 @@ const PEACreateSection = ({ peaCreate, canCreate }) => {
                                 <span>Subir PDF del PEA</span>
                             </Button>
                         )}
-                        
+
                         {/* Input oculto para archivos */}
                         <input
                             ref={fileInputRef}
@@ -238,7 +220,7 @@ const PEACreateSection = ({ peaCreate, canCreate }) => {
                 {/* Estado subiendo */}
                 {isUploading && (
                     <div className="text-center py-8">
-                        <LoadingState 
+                        <LoadingState
                             message="Procesando archivo PDF..."
                             description="Extrayendo información del PEA"
                             size="medium"
@@ -292,27 +274,166 @@ const PEACreateSection = ({ peaCreate, canCreate }) => {
                             </div>
                         )}
 
-                        {/* Preview de datos extraídos */}
-                        <div className="bg-slate-600/30 rounded-lg p-4 space-y-3">
-                            <h5 className="font-medium text-white">Información Extraída:</h5>
-                            
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    <span className="text-slate-400">Asignatura:</span>
-                                    <p className="text-white">{createState.extractedData.informacionGeneral?.asignatura || 'No disponible'}</p>
+                        {/* Vista completa de información extraída */}
+                        <div className="bg-slate-600/30 rounded-lg p-4 space-y-4">
+                            <h5 className="font-medium text-white flex items-center space-x-2">
+                                <DocumentTextIcon className="h-5 w-5 text-[#278bbd]" />
+                                <span>Información Extraída del PEA</span>
+                            </h5>
+
+                            {/* Información general - Grid superior */}
+                            <div className="grid md:grid-cols-2 gap-4">
+                                {/* Carrera */}
+                                {createState.extractedData.informacionGeneral?.carrera && (
+                                    <div className="space-y-1">
+                                        <span className="text-slate-400 text-sm font-medium">🎓 Carrera:</span>
+                                        <p className="text-white text-sm font-medium bg-blue-500/10 p-2 rounded border border-blue-500/20">
+                                            {createState.extractedData.informacionGeneral.carrera}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Asignatura */}
+                                <div className="space-y-1">
+                                    <span className="text-slate-400 text-sm font-medium">📚 Asignatura:</span>
+                                    <p className="text-white text-sm font-medium bg-green-500/10 p-2 rounded border border-green-500/20">
+                                        {createState.extractedData.informacionGeneral?.asignatura || 'No disponible'}
+                                    </p>
                                 </div>
-                                <div>
-                                    <span className="text-slate-400">Total Unidades:</span>
-                                    <p className="text-white">{createState.extractedData.estadisticas?.totalUnidades || 0}</p>
+
+                                {/* Núcleo Estructurante */}
+                                {createState.extractedData.informacionGeneral?.nucleoEstructurante && (
+                                    <div className="space-y-1">
+                                        <span className="text-slate-400 text-sm font-medium">🔧 Núcleo Estructurante:</span>
+                                        <p className="text-white text-sm bg-purple-500/10 p-2 rounded border border-purple-500/20">
+                                            {createState.extractedData.informacionGeneral.nucleoEstructurante}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Total Unidades */}
+                                <div className="space-y-1">
+                                    <span className="text-slate-400 text-sm font-medium">📖 Total Unidades:</span>
+                                    <p className="text-white text-sm font-bold bg-orange-500/10 p-2 rounded border border-orange-500/20">
+                                        {createState.extractedData.estadisticas?.totalUnidades || 0} unidades
+                                    </p>
                                 </div>
                             </div>
-                            
-                            <div>
-                                <span className="text-slate-400 text-sm">Descripción:</span>
-                                <p className="text-white text-sm mt-1 line-clamp-3">
-                                    {createState.extractedData.contenidoAcademico?.descripcion || 'No disponible'}
-                                </p>
+
+                            {/* Descripción completa */}
+                            <div className="space-y-2">
+                                <span className="text-slate-400 text-sm font-medium">📝 Descripción:</span>
+                                <div className="bg-slate-700/50 p-3 rounded border border-slate-600/50 max-h-40 overflow-y-auto">
+                                    <p className="text-white text-sm leading-relaxed whitespace-pre-wrap">
+                                        {createState.extractedData.contenidoAcademico?.descripcion || 'No disponible'}
+                                    </p>
+                                </div>
                             </div>
+
+                            {/* Objetivo General */}
+                            {createState.extractedData.contenidoAcademico?.objetivoGeneral && (
+                                <div className="space-y-2">
+                                    <span className="text-slate-400 text-sm font-medium">🎯 Objetivo General:</span>
+                                    <div className="bg-slate-700/50 p-3 rounded border border-slate-600/50 max-h-32 overflow-y-auto">
+                                        <p className="text-white text-sm leading-relaxed whitespace-pre-wrap">
+                                            {createState.extractedData.contenidoAcademico.objetivoGeneral}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Unidades curriculares */}
+                            {createState.extractedData.unidadesCurriculares && createState.extractedData.unidadesCurriculares.length > 0 && (
+                                <div className="space-y-3">
+                                    <span className="text-slate-400 text-sm font-medium">📚 Unidades Curriculares:</span>
+                                    <div className="space-y-3 max-h-60 overflow-y-auto">
+                                        {createState.extractedData.unidadesCurriculares.map((unidad, index) => (
+                                            <div key={index} className="bg-slate-700/50 p-3 rounded border border-slate-600/50">
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <BookOpenIcon className="h-4 w-4 text-[#278bbd]" />
+                                                    <h6 className="font-medium text-white">
+                                                        Unidad {unidad.numero || index + 1}
+                                                        {unidad.titulo && `: ${unidad.titulo}`}
+                                                    </h6>
+                                                </div>
+
+                                                {/* Resultados de aprendizaje */}
+                                                {unidad.resultadosAprendizaje && unidad.resultadosAprendizaje.length > 0 && (
+                                                    <div className="mt-2">
+                                                        <span className="text-slate-300 text-xs font-medium">Resultados de aprendizaje:</span>
+                                                        <ul className="mt-1 space-y-1">
+                                                            {unidad.resultadosAprendizaje.map((resultado, resultIndex) => (
+                                                                <li key={resultIndex} className="flex items-start space-x-2">
+                                                                    <span className="text-[#278bbd] text-xs mt-1">•</span>
+                                                                    <p className="text-slate-300 text-xs leading-relaxed">
+                                                                        {resultado}
+                                                                    </p>
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                )}
+
+                                                {/* Contenidos si existen */}
+                                                {unidad.contenidos && unidad.contenidos.length > 0 && (
+                                                    <div className="mt-2">
+                                                        <span className="text-slate-300 text-xs font-medium">Contenidos:</span>
+                                                        <ul className="mt-1 space-y-1">
+                                                            {unidad.contenidos.map((contenido, contIndex) => (
+                                                                <li key={contIndex} className="flex items-start space-x-2">
+                                                                    <span className="text-yellow-400 text-xs mt-1">▪</span>
+                                                                    <p className="text-slate-300 text-xs leading-relaxed">
+                                                                        {contenido}
+                                                                    </p>
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Estadísticas adicionales si existen */}
+                            {createState.extractedData.estadisticas && (
+                                <div className="pt-3 border-t border-slate-600/50">
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                                        {createState.extractedData.estadisticas.totalPaginas && (
+                                            <div className="bg-slate-700/30 p-2 rounded">
+                                                <p className="text-slate-400 text-xs">Páginas</p>
+                                                <p className="text-white font-bold">{createState.extractedData.estadisticas.totalPaginas}</p>
+                                            </div>
+                                        )}
+
+                                        {createState.extractedData.estadisticas.totalConceptos && (
+                                            <div className="bg-slate-700/30 p-2 rounded">
+                                                <p className="text-slate-400 text-xs">Conceptos</p>
+                                                <p className="text-white font-bold">{createState.extractedData.estadisticas.totalConceptos}</p>
+                                            </div>
+                                        )}
+
+                                        {createState.extractedData.estadisticas.totalUnidades && (
+                                            <div className="bg-slate-700/30 p-2 rounded">
+                                                <p className="text-slate-400 text-xs">Unidades</p>
+                                                <p className="text-white font-bold">{createState.extractedData.estadisticas.totalUnidades}</p>
+                                            </div>
+                                        )}
+
+                                        {createState.extractedData.estadisticas.nivelCompletitud && (
+                                            <div className="bg-slate-700/30 p-2 rounded">
+                                                <p className="text-slate-400 text-xs">Completitud</p>
+                                                <p className={`font-bold ${createState.extractedData.estadisticas.nivelCompletitud > 80 ? 'text-green-400' :
+                                                        createState.extractedData.estadisticas.nivelCompletitud > 60 ? 'text-yellow-400' : 'text-red-400'
+                                                    }`}>
+                                                    {createState.extractedData.estadisticas.nivelCompletitud}%
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
@@ -320,7 +441,7 @@ const PEACreateSection = ({ peaCreate, canCreate }) => {
                 {/* Estado creando */}
                 {isCreating && (
                     <div className="text-center py-8">
-                        <LoadingState 
+                        <LoadingState
                             message="Creando PEA..."
                             description="Guardando información en la base de datos"
                             size="medium"
@@ -384,7 +505,7 @@ const PEALoadingSection = ({ loading, error }) => {
     if (loading) {
         return (
             <InfoSection title="Plan de Enseñanza-Aprendizaje" icon={DocumentTextIcon}>
-                <LoadingState 
+                <LoadingState
                     message="Cargando PEA..."
                     description="Obteniendo información del Plan de Enseñanza-Aprendizaje"
                     size="medium"

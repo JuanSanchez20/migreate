@@ -101,28 +101,6 @@ const SubjectListPage = () => {
                             stats={stats}
                         />
                     </div>
-
-                    {/* Footer informativo */}
-                    <div className="mt-12 pt-8 border-t border-slate-700/50">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-slate-500">
-                            <div className="mb-4 sm:mb-0">
-                                <p>Sistema de Gestión de Materias - Administración</p>
-                                <p>Filtra, busca y gestiona materias del sistema académico</p>
-                            </div>
-
-                            {/* Indicadores de filtros activos en footer */}
-                            <div className="flex items-center space-x-4">
-                                {activeFilters.map((filter) => (
-                                    <span
-                                        key={filter.key}
-                                        className={`px-2 py-1 rounded text-xs ${filter.color}`}
-                                    >
-                                        {filter.label} activo
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
