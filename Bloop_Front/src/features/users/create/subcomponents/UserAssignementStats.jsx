@@ -40,7 +40,7 @@ export default function AssignmentStats({
     return (
         <div className="p-4 bg-slate-700/30 rounded-lg border border-slate-600">
             <h4 className="text-sm font-medium text-slate-300 mb-3 flex items-center">
-                📊 Resumen de Asignación
+                Resumen de Asignación
             </h4>
 
             {/* Estadísticas para Estudiantes */}
@@ -48,7 +48,7 @@ export default function AssignmentStats({
                 <div className="space-y-2">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                         <div className="flex justify-between">
-                            <span className="text-slate-400">📚 Cursando:</span>
+                            <span className="text-slate-400">Cursando:</span>
                             <span className={`font-medium ${getIndicatorColor(stats.cursando, maxCursando)}`}>
                                 {stats.cursando}/{maxCursando}
                             </span>
@@ -65,14 +65,14 @@ export default function AssignmentStats({
                     {/* Indicador de límite */}
                     {isAtLimit() && (
                         <div className="mt-3 text-xs text-yellow-400 bg-yellow-500/10 p-2 rounded border border-yellow-500/20">
-                            ⚠️ Límite de materias "Cursando" alcanzado
+                            Límite de materias "Cursando" alcanzado
                         </div>
                     )}
 
                     {/* Consejo visual */}
                     {stats.cursando < maxCursando && stats.total > 0 && (
                         <div className="mt-3 text-xs text-blue-400 bg-blue-500/10 p-2 rounded border border-blue-500/20">
-                            💡 Puedes agregar {maxCursando - stats.cursando} materia(s) más como "Cursando"
+                            Puedes agregar {maxCursando - stats.cursando} materia(s) más como "Cursando"
                         </div>
                     )}
                 </div>
@@ -90,7 +90,7 @@ export default function AssignmentStats({
 
                     {stats.encargado > 5 && (
                         <div className="mt-2 text-xs text-yellow-400 bg-yellow-500/10 p-2 rounded border border-yellow-500/20">
-                            ⚠️ Tienes muchas materias asignadas. Considera la carga de trabajo.
+                            Tienes muchas materias asignadas. Considera la carga de trabajo.
                         </div>
                     )}
                 </div>

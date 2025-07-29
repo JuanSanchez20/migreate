@@ -3,6 +3,7 @@ export { default as Button } from './form/Button';
 export { default as TextField } from './form/TextField';
 export { default as TextArea } from './form/TextArea';
 export { default as SelectField } from './form/SelectField';
+export { default as RadioGroupField } from './form/RadioGroupField';
 
 export { default as PageHeader } from './ui/PageHeader';
 export { default as Card } from './ui/Card';

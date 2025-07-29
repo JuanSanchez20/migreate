@@ -7,6 +7,7 @@ import {
     UserListPage,
     CreateUserPage,
     SubjectListPage,
+    CreateSubjectPage,
     // UserProfile
 } from '@/pages';
 
@@ -89,7 +90,16 @@ export const routeConfig = [
         allowedRoles: [1, 2, 3],
         title: 'Listado de materias',
         description: 'Gestión de materias del sistema'
-    }
+    },
+
+    // Creación de materias (Solo admins)
+    {
+        path: '/courses/create',
+        element: CreateSubjectPage,
+        allowedRoles: [1],
+        title: 'Creación de Materias',
+        description: 'Gestión de materias del sistema'
+    },
 
     // {
     //     path: '/profile',

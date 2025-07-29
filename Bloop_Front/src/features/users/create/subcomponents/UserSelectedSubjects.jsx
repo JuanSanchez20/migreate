@@ -54,10 +54,10 @@ export default function SelectedSubjects({
                         {!compact && (
                             <div className="flex items-center space-x-3 mt-1 text-xs text-slate-400">
                                 {subject.subjectSemester && (
-                                    <span>📚 Sem. {subject.subjectSemester}</span>
+                                    <span>Sem. {subject.subjectSemester}</span>
                                 )}
                                 {subject.subjectModalidad && (
-                                    <span>🕒 {subject.subjectModalidad}</span>
+                                    <span>{subject.subjectModalidad}</span>
                                 )}
                             </div>
                         )}

@@ -31,3 +31,9 @@ export { default as SubjectList } from './subjects/list/SubjectList';
 export { default as SubjectModal } from './subjects/edit/SubjectModal';
 
 export { default as useSubjectModule } from './subjects/list/hooks/useSubjectModule';
+// Crear materias
+export { default as AssignSubjectForm } from './subjects/create/AssignSubjectForm';
+export { default as CreateSubjectForm } from './subjects/create/CreateSubjectForm';
+export { default as SubjectPreviewCard } from './subjects/create/SubjectPreviewCard';
+
+export { default as useCreateSubjectModule } from './subjects/create/hooks/useCreateSubjectModule';
