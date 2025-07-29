@@ -17,7 +17,7 @@ const StudentAssignmentModal = ({
     subject, 
     studentManagement,
     onClose, 
-    onAssign
+    onAssign // Esta función viene del hook unificador
 }) => {
     const {
         studentsForCursando,
@@ -30,18 +30,20 @@ const StudentAssignmentModal = ({
         getTotalSelected,
         prepareAssignmentData,
         canProceedWithAssignment,
-        assignStudents,
         clearAllSelections
     } = studentManagement;
 
     // Maneja la asignación de estudiantes seleccionados
     const handleAssignStudents = async () => {
         const assignmentData = prepareAssignmentData();
-        if (assignmentData.length === 0) return;
-
-        const result = await assignStudents(assignmentData);
-        if (result.success) {
-            onAssign?.(result);
+        
+        // Usar la función del hook unificador que maneja todo el flujo
+        const result = await onAssign(assignmentData);
+        
+        // El modal se cierra automáticamente desde el hook unificador si es exitoso
+        // Solo manejar errores aquí si es necesario
+        if (!result?.success) {
+            console.error('Error en asignación:', result?.error);
         }
     };
 
@@ -78,6 +80,7 @@ const StudentAssignmentModal = ({
                     <button
                         onClick={handleClose}
                         className="p-2 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                        disabled={loading}
                     >
                         <XMarkIcon className="h-6 w-6" />
                     </button>
@@ -96,21 +99,6 @@ const StudentAssignmentModal = ({
                             />
                         </div>
                     )}
-
-                    {/* Información explicativa */}
-                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-6">
-                        <div className="flex items-start space-x-3">
-                            <InformationCircleIcon className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                            <div className="text-sm">
-                                <p className="text-blue-400 font-medium mb-1">Criterios de Asignación</p>
-                                <ul className="text-blue-300 space-y-1">
-                                    <li>• <strong>Cursando:</strong> Estudiantes del mismo semestre ({subject.semestre}°) - primera vez</li>
-                                    <li>• <strong>Repitiendo:</strong> Estudiantes de semestres superiores al {subject.semestre}°</li>
-                                    <li>• <strong>Límite:</strong> Máximo 2 materias "Cursando" por estudiante</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
 
                     {/* Loading state */}
                     {loading && (

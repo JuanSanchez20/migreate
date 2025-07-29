@@ -61,22 +61,6 @@ const StudentAssignmentSection = ({
                 )}
             </div>
 
-            {/* Información sobre criterios de asignación */}
-            {canManageStudents && (
-                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mb-4">
-                    <div className="flex items-start space-x-2">
-                        <InformationCircleIcon className="h-4 w-4 text-blue-400 mt-0.5 flex-shrink-0" />
-                        <div className="text-sm">
-                            <p className="text-blue-400 font-medium mb-1">Criterios de Asignación:</p>
-                            <ul className="text-blue-300 space-y-1 text-xs">
-                                <li>• <strong>Cursando:</strong> Estudiantes del {subject.semestre}° semestre (máximo 2 materias)</li>
-                                <li>• <strong>Repitiendo:</strong> Estudiantes de semestres superiores al {subject.semestre}°</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {/* Loading de estudiantes */}
             {loadingStudents && (
                 <LoadingState 

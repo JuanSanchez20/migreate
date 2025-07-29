@@ -1,5 +1,3 @@
-// src/features/subjects/components/SubjectModal.jsx
-
 import React from 'react';
 import {
     XMarkIcon,
@@ -46,7 +44,9 @@ const SubjectModal = ({ subject, isOpen, onClose, onSubjectUpdate }) => {
         isLoading,
         notification,
 
-        // Funciones globales
+        // Funciones globales mejoradas
+        handleSubjectUpdated,
+        handleStudentsAssignedFromModal,
         hideNotification
     } = useSubjectModalModule(subject, onSubjectUpdate);
 
@@ -119,6 +119,7 @@ const SubjectModal = ({ subject, isOpen, onClose, onSubjectUpdate }) => {
                                     onClick={subjectInfo.startEditing}
                                     className="p-2 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
                                     title="Editar materia"
+                                    disabled={isLoading}
                                 >
                                     <PencilIcon className="h-5 w-5" />
                                 </button>
@@ -211,7 +212,7 @@ const SubjectModal = ({ subject, isOpen, onClose, onSubjectUpdate }) => {
                     subject={subject}
                     studentManagement={studentManagement}
                     onClose={closeStudentModal}
-                    onAssign={studentManagement.assignStudents}
+                    onAssign={handleStudentsAssignedFromModal}
                 />
             )}
         </>

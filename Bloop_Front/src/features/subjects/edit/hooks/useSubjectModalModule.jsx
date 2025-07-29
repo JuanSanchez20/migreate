@@ -44,33 +44,21 @@ export const useSubjectModalModule = (subject, onSubjectUpdate) => {
 
     // Hook de creación de PEA
     const peaCreate = usePEACreate(subject, (createdData) => {
-        // Callback cuando se crea PEA exitosamente
         onSubjectUpdate?.();
         peaList.refreshPEA();
-        showSuccess('PEA creado y vinculado correctamente');
+        showSuccess('PEA creado y vinculado correctamente', 3000);
     });
 
-    // Hook de gestión de tutores
+    // Hook de gestión de tutores - SIMPLIFICADO
     const tutorManagement = useTutorAssignment(subject, onSubjectUpdate);
 
-    // Hook de gestión de estudiantes
+    // Hook de gestión de estudiantes - SIMPLIFICADO
     const studentManagement = useStudentAssignment(subject, onSubjectUpdate);
 
     // Abre el modal
     const openModal = useCallback(() => {
         setIsModalOpen(true);
-
-        // Refrescar datos al abrir
-        if (availableActions.canManagePEA) {
-            peaList.refreshPEA();
-        }
-        if (availableActions.canManageTutors) {
-            tutorManagement.loadTutors();
-        }
-        if (availableActions.canManageStudents) {
-            studentManagement.loadStudents();
-        }
-    }, [availableActions, peaList, tutorManagement, studentManagement]);
+    }, []);
 
     // Cierra el modal
     const closeModal = useCallback(() => {
@@ -91,45 +79,12 @@ export const useSubjectModalModule = (subject, onSubjectUpdate) => {
         hideNotification();
     }, [subjectInfo, peaCreate, tutorManagement, studentManagement, hideNotification]);
 
-    // Maneja la actualización exitosa de la materia
-    const handleSubjectUpdated = useCallback(() => {
-        onSubjectUpdate?.();
-        showSuccess('Información de materia actualizada');
-    }, [onSubjectUpdate, showSuccess]);
-
-    // Maneja la asignación exitosa de tutor
-    const handleTutorAssigned = useCallback((tutorData) => {
-        onSubjectUpdate?.();
-        tutorManagement.clearSelection();
-        showSuccess('Tutor asignado correctamente');
-    }, [onSubjectUpdate, tutorManagement, showSuccess]);
-
-    // Maneja la remoción exitosa de tutor
-    const handleTutorRemoved = useCallback(() => {
-        onSubjectUpdate?.();
-        showSuccess('Tutor removido correctamente');
-    }, [onSubjectUpdate, showSuccess]);
-
-    // Maneja la asignación exitosa de estudiantes
-    const handleStudentsAssigned = useCallback((assignmentResult) => {
-        onSubjectUpdate?.();
-        studentManagement.clearAllSelections();
-        setShowStudentModal(false);
-
-        if (assignmentResult.failed > 0) {
-            showError(`${assignmentResult.successful} estudiantes asignados, ${assignmentResult.failed} fallaron`);
-        } else {
-            showSuccess(`${assignmentResult.successful} estudiante${assignmentResult.successful !== 1 ? 's' : ''} asignado${assignmentResult.successful !== 1 ? 's' : ''} correctamente`);
-        }
-    }, [onSubjectUpdate, studentManagement, showSuccess, showError]);
-
     // Abre el modal de asignación de estudiantes
     const openStudentModal = useCallback(() => {
         if (!availableActions.canManageStudents) {
             showError('No tiene permisos para gestionar estudiantes');
             return;
         }
-
         setShowStudentModal(true);
     }, [availableActions.canManageStudents, showError]);
 
@@ -139,14 +94,28 @@ export const useSubjectModalModule = (subject, onSubjectUpdate) => {
         studentManagement.clearAllSelections();
     }, [studentManagement]);
 
+    // Maneja la asignación de estudiantes desde el modal secundario
+    const handleStudentsAssignedFromModal = useCallback(async (assignmentData) => {
+        if (!assignmentData || assignmentData.length === 0) {
+            showError('Debe seleccionar al menos un estudiante');
+            return { success: false };
+        }
+
+        const result = await studentManagement.assignStudents(assignmentData);
+        
+        if (result.success) {
+            setShowStudentModal(false); // Cerrar modal
+        }
+        
+        return result;
+    }, [studentManagement, showError]);
+
     // Determina qué sección del PEA mostrar según el estado
     const getPEASection = useCallback(() => {
-        // Si no puede ver PEA, no mostrar nada
         if (!availableActions.canManagePEA && availableActions.peaViewLevel === 'none') {
             return { type: 'hidden' };
         }
 
-        // Si existe PEA, mostrar datos
         if (peaList.hasPEA && peaList.peaData) {
             return { 
                 type: 'display', 
@@ -155,7 +124,6 @@ export const useSubjectModalModule = (subject, onSubjectUpdate) => {
             };
         }
 
-        // Si puede crear PEA y no existe, mostrar creación
         if (availableActions.canManagePEA && !peaList.hasPEA) {
             return { 
                 type: 'create',
@@ -164,7 +132,6 @@ export const useSubjectModalModule = (subject, onSubjectUpdate) => {
             };
         }
 
-        // Para estudiantes sin PEA
         if (availableActions.peaViewLevel === 'student' && !peaList.hasPEA) {
             return { type: 'no_pea_student' };
         }
@@ -172,7 +139,7 @@ export const useSubjectModalModule = (subject, onSubjectUpdate) => {
         return { type: 'loading' };
     }, [availableActions, peaList, peaCreate]);
 
-    // Verifica si el modal debe estar bloqueado (durante operaciones)
+    // Verifica si el modal debe estar bloqueado
     const isModalBlocked = () => {
         return (
             subjectInfo.loading ||
@@ -186,13 +153,11 @@ export const useSubjectModalModule = (subject, onSubjectUpdate) => {
     // Obtiene todos los errores activos
     const getAllErrors = () => {
         const errors = [];
-
         if (subjectInfo.error) errors.push({ section: 'subject', error: subjectInfo.error });
         if (peaList.error) errors.push({ section: 'pea_list', error: peaList.error });
         if (peaCreate.error) errors.push({ section: 'pea_create', error: peaCreate.error });
         if (tutorManagement.error) errors.push({ section: 'tutor', error: tutorManagement.error });
         if (studentManagement.error) errors.push({ section: 'student', error: studentManagement.error });
-
         return errors;
     };
 
@@ -205,28 +170,6 @@ export const useSubjectModalModule = (subject, onSubjectUpdate) => {
         studentManagement.clearError();
     };
 
-    // Refresca todos los datos
-    const refreshAllData = useCallback(async () => {
-        const promises = [];
-
-        if (availableActions.canManagePEA) {
-            promises.push(peaList.refreshPEA());
-        }
-        if (availableActions.canManageTutors) {
-            promises.push(tutorManagement.loadTutors());
-        }
-        if (availableActions.canManageStudents) {
-            promises.push(studentManagement.loadStudents());
-        }
-
-        try {
-            await Promise.all(promises);
-            showSuccess('Datos actualizados correctamente');
-        } catch (error) {
-            showError('Error al actualizar algunos datos');
-        }
-    }, [availableActions, peaList, tutorManagement, studentManagement, showSuccess, showError]);
-
     return {
         // Estados del modal
         isModalOpen,
@@ -238,7 +181,7 @@ export const useSubjectModalModule = (subject, onSubjectUpdate) => {
         openStudentModal,
         closeStudentModal,
 
-        // Hooks individuales (API completa)
+        // Hooks individuales
         subjectInfo,
         peaList,
         peaCreate,
@@ -255,13 +198,9 @@ export const useSubjectModalModule = (subject, onSubjectUpdate) => {
         notification,
         allErrors: getAllErrors(),
 
-        // Funciones globales
-        handleSubjectUpdated,
-        handleTutorAssigned,
-        handleTutorRemoved,
-        handleStudentsAssigned,
+        // Funciones principales
+        handleStudentsAssignedFromModal,
         clearAllErrors,
-        refreshAllData,
         hideNotification,
 
         // Funciones de notificación
